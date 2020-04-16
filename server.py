@@ -55,13 +55,8 @@ def get_id_by_name(process, name):
 if __name__ == "__main__":
     print("Raceroom Commander")
     print("Created by Koen van Hove - koenvh.nl")
+    print("See README for the available commands")
     print("--------")
-    print("Commands:")
-    print("/kick <NAME> - Kicks a player from the server")
-    print("/ban <NAME> - Bans a player from the server")
-    print("/penalty <NAME> <TYPE> - Penalise a player, either slowdown, drivethrough, stopandgo, or disqualify")
-    print("/next - Continue to the next session")
-    print("/restart - Restart the current session")
     print("")
     server_data = get_data("dedi")
 
@@ -75,7 +70,6 @@ if __name__ == "__main__":
         try:
             for process_id in process_ids:
                 process_data = get_data("dedi/" + str(process_id))
-
                 chat_messages = get_data("chat/" + str(process_id))
                 if "messages" not in chat_messages:
                     continue
@@ -127,14 +121,58 @@ if __name__ == "__main__":
                         post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                    "PenaltyType": penalty_name, "Duration": 3})
 
+                    elif command == "/slowdown":
+                        if len(text_parts) < 2:
+                            continue
+                        if " " not in text_parts[1]:
+                            continue
+                        name, duration = text_parts[1].rsplit(" ", 1)
+                        user_id = get_id_by_name(process_data, name)
+                        post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
+                                                   "PenaltyType": "Slowdown", "Duration": int(duration)})
+
+                    elif command == "/drivethrough" or command == "/drive-through":
+                        if len(text_parts) < 2:
+                            continue
+                        user_id = get_id_by_name(process_data, text_parts[1])
+                        post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
+                                                   "PenaltyType": "Drivethrough", "Duration": 10})
+
+                    elif command == "/stopandgo" or command == "/stop-and-go":
+                        if len(text_parts) < 2:
+                            continue
+                        user_id = get_id_by_name(process_data, text_parts[1])
+                        post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
+                                                   "PenaltyType": "StopAndGo", "Duration": 10})
+
+                    elif command == "/disqualify":
+                        if len(text_parts) < 2:
+                            continue
+                        user_id = get_id_by_name(process_data, text_parts[1])
+                        post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
+                                                   "PenaltyType": "Disqualify", "Duration": 10})
+
                     elif command == "/restart":
                         post_data("session/" + str(process_id), params={"Command": "Restart"})
 
                     elif command == "/next":
                         post_data("session/" + str(process_id), params={"Command": "ProceedNext"})
 
+                    elif command == "/help":
+                        help_text = [
+                            "/kick NAME",
+                            "/ban NAME",
+                            "/slowdown NAME DURATION",
+                            "/drivethrough NAME",
+                            "/stopandgo NAME",
+                            "/disqualify NAME",
+                            "/next",
+                            "/restart"
+                        ]
+                        post_data("chat/" + str(process_id) + "/admin", params={"Message": "; ".join(help_text)})
+
         except Exception as e:
             print(e)
 
-        time.sleep(1)
+        time.sleep(0.5)
 
