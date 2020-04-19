@@ -227,9 +227,10 @@ class Server:
                         if entry[1] >= minimum_rating and entry[2] >= minimum_reputation:
                             self.accepted_ids.append(player["UserId"])
                             continue
+                        msg = "Kicked " + entry[3] + " due to insufficient rating/reputation."
+                        self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
                         self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": player["UserId"]})
-                        self.post_data("chat/" + str(process_id) + "/admin", params={
-                            "Message": "Kicked " + entry[3] + " due to insufficient rating/reputation."})
+                        time.sleep(3)
                         self.get_data("dedi/" + str(process_id))
                         # TODO: Fix kick post request firing multiple times
 
