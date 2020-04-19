@@ -22,6 +22,11 @@ class Server:
         self.update_database()
 
     def update_database(self):
+        players = requests.get("http://game.raceroom.com/multiplayer-rating/ratings.json").json()
+        if not len(players) > 100:
+            # Something went wrong with retrieving the data (less than 100 entries is unlikely), so abort.
+            return
+
         self.database_last_update = int(time.time())
         c = self.database.cursor()
         c.execute("DROP TABLE IF EXISTS players")
@@ -35,7 +40,6 @@ class Server:
         c.execute("CREATE INDEX idx_UserId ON players(UserId)")
         c.execute("CREATE INDEX idx_Username ON players(Username)")
         c.execute("CREATE INDEX idx_Fullname ON players(Fullname)")
-        players = requests.get("http://game.raceroom.com/multiplayer-rating/ratings.json").json()
         players_db = [(x["UserId"],
                        x["Username"],
                        x["Fullname"],
@@ -220,7 +224,7 @@ class Server:
                         entry = c.fetchone()
                         if entry is None:
                             entry = (player["UserId"], 0, 0, "player")
-                        if entry[1] > minimum_rating and entry[2] > minimum_reputation:
+                        if entry[1] >= minimum_rating and entry[2] >= minimum_reputation:
                             self.accepted_ids.append(player["UserId"])
                             continue
                         self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": player["UserId"]})
