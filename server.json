@@ -1,3 +1,6 @@
 {
-  "admin_ids": [11962, 786, 29815]
+  "admin_ids": [11962, 786, 29815],
+  "minimum_rating": -1,
+  "minimum_reputation": 80,
+  "whitelisted_ids": [11962, 786, 29815]
 }
