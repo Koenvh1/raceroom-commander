@@ -236,7 +236,8 @@ class Server:
 
                 last_created_at = new_last_created_at
 
-                if self.database_last_update - int(time.time()) > 15 * 60:
+                if int(time.time()) - self.database_last_update > 15 * 60:
+                    print("Updating database...")
                     self.update_database()
             except Exception as e:
                 import traceback
