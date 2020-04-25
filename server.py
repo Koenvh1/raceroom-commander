@@ -214,8 +214,10 @@ class Server:
                     # end chat messages
                     for player in process_data["ProcessState"]["Players"]:
                         if player["UserId"] in self.accepted_ids:
+                            # Player was already accepted, so don't check again
                             continue
                         if player["UserId"] in whitelisted_ids:
+                            # Player is whitelisted, and gets access anyway
                             self.accepted_ids.append(player["UserId"])
                             continue
                         c = self.database.cursor()
@@ -223,13 +225,29 @@ class Server:
                                   (player["UserId"],))
                         entry = c.fetchone()
                         if entry is None:
+                            # Player has never driven ranked, and has no entry in the database
+                            # Create a dummy player with name "player" and rating/reputation 0
                             entry = (player["UserId"], 0, 0, "player")
                         if entry[1] >= minimum_rating and entry[2] >= minimum_reputation:
+                            # Player meets the requirements to join
                             self.accepted_ids.append(player["UserId"])
                             continue
-                        msg = "Kicked " + entry[3] + " due to insufficient rating/reputation."
-                        self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
+
+                        if entry[1] < minimum_rating:
+                            # Player kicked due to not meeting minimum rating requirement
+                            # Only determines the chat message shown
+                            msg = "Kicked " + entry[3] + " due to insufficient rating (" + \
+                                  str(entry[1]) + "/" + str(minimum_rating) + ")."
+                            self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
+                        elif entry[2] < minimum_reputation:
+                            # Player kicked due to not meeting minimum reputation requirement
+                            # Only determines the chat message shown
+                            msg = "Kicked " + entry[3] + " due to insufficient reputation (" + \
+                                  str(entry[2]) + "/" + str(minimum_reputation) + ")."
+                            self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
+
                         self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": player["UserId"]})
+                        # Kick player, and wait three seconds to prevent chat message spam
                         time.sleep(3)
                         self.get_data("dedi/" + str(process_id))
                         # TODO: Fix kick post request firing multiple times
