@@ -26,3 +26,10 @@ If they are in the game, and they type one of the commands, then Raceroom Comman
 If you set a `minimum_rating` and/or `minimum_reputation`, then the server will kick players that 
 attempt to join the server with an insufficient rating/reputation. Set this to -1 to disable.
 The IDs in the `whitelist_ids` list will never be kicked due to insufficient rating/reputation.
+
+## How to download:
+Go to https://gitlab.com/Koenvh/raceroom-commander/-/releases, download the latest `server.zip`,
+extract the files to a folder of your choosing, set the settings in `server.json` to match whatever 
+you want to do with Raceroom Commander, start the Raceroom Dedicated Server and run `server.exe`. 
+Please note that the Raceroom Dedicated Server must be running when starting `server.exe`, and settings
+will only be applied after restarting `server.exe`.
