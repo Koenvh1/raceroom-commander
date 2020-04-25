@@ -166,6 +166,8 @@ class Server:
                             if " " not in text_parts[1]:
                                 continue
                             name, duration = text_parts[1].rsplit(" ", 1)
+                            if not str(duration).isdigit():
+                                continue
                             user_id = self.get_id_by_name(process_data, name)
                             self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                             "PenaltyType": "Slowdown", "Duration": int(duration)})
