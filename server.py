@@ -9,7 +9,7 @@ import time
 
 import requests
 import stringdist
-import unidecode
+import text_unidecode
 
 
 class Server:
@@ -58,7 +58,7 @@ class Server:
         data = requests.post("http://localhost:8088/" + url, json=params, headers={"X-Requested-With": "XmlHttpRequest"})
 
     def normalise_string(self, string):
-        return unidecode.unidecode(string).lower()
+        return text_unidecode.unidecode(string).lower()
 
     def get_id_by_name(self, process, name):
         players = [x["UserId"] for x in process["ProcessState"]["Players"]]
