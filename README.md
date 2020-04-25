@@ -1,8 +1,10 @@
+![logo](logo.png)
+
 # Raceroom Commander
 Created by Koen van Hove - koenvh.nl
 
 Raceroom Commander is a small script that adds support for chat commands in Raceroom.
-It can also set custom rules regarding minimum rating/reputation.
+It can also set custom rules regarding minimum rating/reputation with whitelist.
 
 ## Commands:
 - /kick NAME - Kicks a player from the server
