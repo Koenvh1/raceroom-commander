@@ -15,7 +15,7 @@ import text_unidecode
 class Server:
     database = None
     database_last_update = 0
-    accepted_ids = []
+    accepted_ids = set([])
 
     def __init__(self):
         self.database = sqlite3.connect("server.db")
@@ -97,10 +97,10 @@ class Server:
         config = json.load(open("server.json", "r"))
 
         process_ids = [x["GameSetting"]["Id"] for x in server_data]
-        admin_ids = config["admin_ids"]
+        admin_ids = set(config["admin_ids"])
         minimum_rating = config["minimum_rating"]
         minimum_reputation = config["minimum_reputation"]
-        whitelisted_ids = config["whitelisted_ids"]
+        whitelisted_ids = set(config["whitelisted_ids"])
 
         last_created_at = int(time.time())
 
@@ -218,7 +218,7 @@ class Server:
                             continue
                         if player["UserId"] in whitelisted_ids:
                             # Player is whitelisted, and gets access anyway
-                            self.accepted_ids.append(player["UserId"])
+                            self.accepted_ids.add(player["UserId"])
                             continue
                         c = self.database.cursor()
                         c.execute("SELECT UserId, Rating, Reputation, Fullname FROM players WHERE UserId = ?",
@@ -230,7 +230,7 @@ class Server:
                             entry = (player["UserId"], 0, 0, "player")
                         if entry[1] >= minimum_rating and entry[2] >= minimum_reputation:
                             # Player meets the requirements to join
-                            self.accepted_ids.append(player["UserId"])
+                            self.accepted_ids.add(player["UserId"])
                             continue
 
                         if entry[1] < minimum_rating:
