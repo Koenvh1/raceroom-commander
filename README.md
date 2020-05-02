@@ -33,3 +33,6 @@ extract the files to a folder of your choosing, set the settings in `server.json
 you want to do with Raceroom Commander, start the Raceroom Dedicated Server and run `server.exe`. 
 Please note that the Raceroom Dedicated Server must be running when starting `server.exe`, and settings
 will only be applied after restarting `server.exe`.
+
+**Consider donating if you find Raceroom Commander useful:**  
+[![Donate](https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XN358TP8M3J26&source=url)
