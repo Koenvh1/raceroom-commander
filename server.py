@@ -15,7 +15,9 @@ import text_unidecode
 class Server:
     database = None
     database_last_update = 0
+
     accepted_ids = set([])
+    points = {}
 
     def __init__(self):
         self.database = sqlite3.connect("server.db")
@@ -86,6 +88,10 @@ class Server:
                 user_id = player["id"]
         return user_id
 
+    def get_name_by_id(self, id):
+        player_data = requests.get("http://game.raceroom.com/utils/user-info/" + str(id)).json()
+        return player_data
+
     def main(self):
         print("Raceroom Commander")
         print("Created by Koen van Hove - koenvh.nl")
@@ -100,6 +106,8 @@ class Server:
         admin_ids = set(config["admin_ids"])
         minimum_rating = config["minimum_rating"]
         minimum_reputation = config["minimum_reputation"]
+        incident_intervals = set(config["incident_intervals"])
+        incident_types = set(config["incident_types"])
         whitelisted_ids = set(config["whitelisted_ids"])
 
         last_created_at = int(time.time())
@@ -163,11 +171,15 @@ class Server:
                         elif command == "/slowdown":
                             if len(text_parts) < 2:
                                 continue
-                            if " " not in text_parts[1]:
-                                continue
-                            name, duration = text_parts[1].rsplit(" ", 1)
-                            if not str(duration).isdigit():
-                                continue
+                            duration = 3
+                            if " " in text_parts[1]:
+                                name, duration_text = text_parts[1].rsplit(" ", 1)
+                                if str(duration_text).isdigit():
+                                    duration = int(duration_text)
+                                else:
+                                    name = text_parts[1]
+                            else:
+                                name = text_parts[1]
                             user_id = self.get_id_by_name(process_data, name)
                             self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                             "PenaltyType": "Slowdown", "Duration": int(duration)})
@@ -182,9 +194,18 @@ class Server:
                         elif command == "/stopandgo" or command == "/stop-and-go":
                             if len(text_parts) < 2:
                                 continue
-                            user_id = self.get_id_by_name(process_data, text_parts[1])
+                            duration = 3
+                            if " " in text_parts[1]:
+                                name, duration_text = text_parts[1].rsplit(" ", 1)
+                                if str(duration_text).isdigit():
+                                    duration = int(duration_text)
+                                else:
+                                    name = text_parts[1]
+                            else:
+                                name = text_parts[1]
+                            user_id = self.get_id_by_name(process_data, name)
                             self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
-                                                            "PenaltyType": "StopAndGo", "Duration": 10})
+                                                            "PenaltyType": "StopAndGo", "Duration": duration})
 
                         elif command == "/disqualify":
                             if len(text_parts) < 2:
@@ -205,7 +226,7 @@ class Server:
                                 "/ban NAME",
                                 "/slowdown NAME DURATION",
                                 "/drivethrough NAME",
-                                "/stopandgo NAME",
+                                "/stopandgo NAME DURATION",
                                 "/disqualify NAME",
                                 "/next",
                                 "/restart"
@@ -253,6 +274,27 @@ class Server:
                         time.sleep(3)
                         self.get_data("dedi/" + str(process_id))
                         # TODO: Fix kick post request firing multiple times
+
+                    # end reputation/rating check
+
+                    for player in process_data["ProcessState"]["Players"]:
+                        points = sum([x["Points"] for x in player["Incidents"] if x["Type"] in incident_types])
+                        if player["UserId"] not in self.points:
+                            self.points[player["UserId"]] = points
+                        else:
+                            for i in range(self.points[player["UserId"]] + 1, points + 1):
+                                if i in incident_intervals:
+                                    name = self.get_name_by_id(player["UserId"])["name"]
+                                    msg = "Awarded a drive-through penalty to " + name + " for getting "\
+                                          + str(i) + " incident points."
+                                    self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
+                                    self.post_data("user/penalty", {
+                                        "ProcessId": int(process_id),
+                                        "UserId": player["UserId"],
+                                        "PenaltyType": "Drivethrough",
+                                        "Duration": 10
+                                    })
+                        self.points[player["UserId"]] = points
 
                 last_created_at = new_last_created_at
 
