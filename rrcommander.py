@@ -20,7 +20,7 @@ class Server:
     points = {}
 
     def __init__(self):
-        self.database = sqlite3.connect("server.db")
+        self.database = sqlite3.connect("rrcommander.db")
         self.update_database()
 
     def update_database(self):
@@ -100,7 +100,7 @@ class Server:
         print("")
         server_data = self.get_data("dedi")
 
-        config = json.load(open("server.json", "r"))
+        config = json.load(open("rrcommander.json", "r"))
 
         process_ids = [x["GameSetting"]["Id"] for x in server_data]
         admin_ids = set(config["admin_ids"])
