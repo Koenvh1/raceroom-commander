@@ -89,8 +89,14 @@ class Server:
         return user_id
 
     def get_name_by_id(self, id):
-        player_data = requests.get("http://game.raceroom.com/utils/user-info/" + str(id)).json()
-        return player_data
+        c = self.database.cursor()
+        c.execute("SELECT Fullname FROM players WHERE UserId = ?", (id,))
+        entry = c.fetchone()
+        if entry:
+            return entry[0]
+        else:
+            player_data = requests.get("http://game.raceroom.com/utils/user-info/" + str(id)).json()
+            return player_data["name"]
 
     def main(self):
         print("Raceroom Commander")
@@ -249,8 +255,9 @@ class Server:
                         entry = c.fetchone()
                         if entry is None:
                             # Player has never driven ranked, and has no entry in the database
-                            # Create a dummy player with name "player" and rating/reputation 0
-                            entry = (player["UserId"], 0, 0, "player")
+                            # Create a dummy with rating/reputation 0
+                            name = self.get_name_by_id(player["UserId"])
+                            entry = (player["UserId"], 0, 0, name)
                         if entry[1] >= minimum_rating and entry[2] >= minimum_reputation:
                             # Player meets the requirements to join
                             self.accepted_ids.add(player["UserId"])
@@ -284,7 +291,7 @@ class Server:
                         else:
                             for i in range(self.points[player["UserId"]] + 1, points + 1):
                                 if i in incident_intervals:
-                                    name = self.get_name_by_id(player["UserId"])["name"]
+                                    name = self.get_name_by_id(player["UserId"])
                                     msg = "Awarded a drive-through penalty to " + name + " for getting "\
                                           + str(i) + " incident points."
                                     self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
@@ -295,6 +302,8 @@ class Server:
                                         "Duration": 10
                                     })
                         self.points[player["UserId"]] = points
+
+                    # end points check
 
                 last_created_at = new_last_created_at
 
