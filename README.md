@@ -32,15 +32,18 @@ The IDs in the `whitelist_ids` list will never be kicked due to insufficient rat
 If you set the `incident_intervals`, then once a player reaches one of the specified amounts of incident points, 
 they will get a drive-through penalty. You can specify in `incident_types` which types of incidents should be 
 counted towards this point total. The possible types are:
-- Type 0 = Car to car collision
-- Type 1 = Collision with a track object
-- Type 2 = Going the wrong way
-- Type 3 = Going off track
-- Type 4 = Staying stationary on the track
-- Type 5 = Losing control of the vehicle
-- Type 6 = Not serving a penalty
-- Type 7 = Disconnecting / Giving up before the end of a race
-- Type 8 = Missing the race start
+
+| Type | Description                                        |
+|------|----------------------------------------------------|
+| 0    | Car to car collision                               |
+| 1    | Collision with a track object                      |
+| 2    | Going the wrong way                                |
+| 3    | Going off track                                    |
+| 4    | Staying stationary on the track                    |
+| 5    | Losing control of the vehicle                      |
+| 6    | Invalid Lap                                        |
+| 7    | Not serving a penalty                              |
+| 8    | Disconnecting / Giving up before the end of a race |
 
 So if you do not care about people going off track, then you can remove 3 from the `incident_types`. 
 
