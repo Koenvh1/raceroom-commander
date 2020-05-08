@@ -88,15 +88,18 @@ class Server:
                 user_id = player["id"]
         return user_id
 
-    def get_name_by_id(self, id):
+    def get_name_by_id(self, user_id):
         c = self.database.cursor()
-        c.execute("SELECT Fullname FROM players WHERE UserId = ?", (id,))
+        c.execute("SELECT Fullname FROM players WHERE UserId = ?", (user_id,))
         entry = c.fetchone()
         if entry:
             return entry[0]
         else:
-            player_data = requests.get("http://game.raceroom.com/utils/user-info/" + str(id)).json()
-            return player_data["name"]
+            try:
+                player_data = requests.get("http://game.raceroom.com/utils/user-info/" + str(user_id)).json()
+                return player_data["name"]
+            except requests.exceptions.ConnectionError:
+                return "player"
 
     def main(self):
         print("Raceroom Commander")
@@ -174,7 +177,7 @@ class Server:
                             self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                             "PenaltyType": penalty_name, "Duration": 3})
 
-                        elif command == "/slowdown":
+                        elif command == "/slowdown" or command == "/sd":
                             if len(text_parts) < 2:
                                 continue
                             duration = 3
@@ -190,14 +193,14 @@ class Server:
                             self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                             "PenaltyType": "Slowdown", "Duration": int(duration)})
 
-                        elif command == "/drivethrough" or command == "/drive-through":
+                        elif command == "/drivethrough" or command == "/drive-through" or command == "/dt":
                             if len(text_parts) < 2:
                                 continue
                             user_id = self.get_id_by_name(process_data, text_parts[1])
                             self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                             "PenaltyType": "Drivethrough", "Duration": 10})
 
-                        elif command == "/stopandgo" or command == "/stop-and-go":
+                        elif command == "/stopandgo" or command == "/stop-and-go" or command == "/sg":
                             if len(text_parts) < 2:
                                 continue
                             duration = 3
@@ -213,7 +216,7 @@ class Server:
                             self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                             "PenaltyType": "StopAndGo", "Duration": duration})
 
-                        elif command == "/disqualify":
+                        elif command == "/disqualify" or command == "/dq":
                             if len(text_parts) < 2:
                                 continue
                             user_id = self.get_id_by_name(process_data, text_parts[1])
