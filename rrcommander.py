@@ -110,7 +110,7 @@ class Server:
         print("")
         server_data = self.get_data("dedi")
 
-        config = commentjson.load(open("rrcommander.json", "r"))
+        config = commentjson.loads(open("rrcommander.json", "r").read())
 
         process_ids = [x["GameSetting"]["Id"] for x in server_data]
 
