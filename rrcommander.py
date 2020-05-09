@@ -7,6 +7,7 @@ import json
 import sqlite3
 import time
 
+import commentjson
 import requests
 import stringdist
 import text_unidecode
@@ -109,22 +110,24 @@ class Server:
         print("")
         server_data = self.get_data("dedi")
 
-        config = json.load(open("rrcommander.json", "r"))
+        config = commentjson.load(open("rrcommander.json", "r"))
 
         process_ids = [x["GameSetting"]["Id"] for x in server_data]
-        admin_ids = set(config["admin_ids"])
-        minimum_rating = config["minimum_rating"]
-        minimum_reputation = config["minimum_reputation"]
-        incident_intervals = set(config["incident_intervals"])
-        incident_types = set(config["incident_types"])
-        whitelisted_ids = set(config["whitelisted_ids"])
 
         last_created_at = int(time.time())
 
         while True:
             try:
                 new_last_created_at = last_created_at
-                for process_id in process_ids:
+
+                for server_no, process_id in enumerate(process_ids):
+                    admin_ids = set(config["servers"][server_no]["admin_ids"])
+                    minimum_rating = config["servers"][server_no]["minimum_rating"]
+                    minimum_reputation = config["servers"][server_no]["minimum_reputation"]
+                    incident_intervals = set(config["servers"][server_no]["incident_intervals"])
+                    incident_types = set(config["servers"][server_no]["incident_types"])
+                    whitelisted_ids = set(config["servers"][server_no]["whitelisted_ids"])
+
                     process_data = self.get_data("dedi/" + str(process_id))
                     chat_messages = self.get_data("chat/" + str(process_id))
                     if "messages" not in chat_messages:
@@ -280,8 +283,8 @@ class Server:
                             self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
 
                         self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": player["UserId"]})
-                        # Kick player, and wait three seconds to prevent chat message spam
-                        time.sleep(3)
+                        # Kick player, and wait four seconds to prevent chat message spam
+                        time.sleep(4)
                         self.get_data("dedi/" + str(process_id))
                         # TODO: Fix kick post request firing multiple times
 
@@ -305,7 +308,6 @@ class Server:
                                         "Duration": 10
                                     })
                         self.points[player["UserId"]] = points
-
                     # end points check
 
                 last_created_at = new_last_created_at

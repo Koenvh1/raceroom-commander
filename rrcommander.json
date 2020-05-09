@@ -1,8 +1,89 @@
 {
-  "admin_ids": [11962, 786, 29815],
-  "minimum_rating": -1,
-  "minimum_reputation": 80,
-  "whitelisted_ids": [11962, 786, 29815],
-  "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80],
-  "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8]
+  "servers": [
+    {
+      // Server 1
+      "admin_ids": [ // IDs of users that have access to the chat commands like /kick, /ban etc.
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
+      "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
+      "whitelisted_ids": [
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+    },
+    {
+      // Server 2
+      "admin_ids": [ // IDs of users that have access to the chat commands like /kick, /ban etc.
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
+      "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
+      "whitelisted_ids": [
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+    },
+    {
+      // Server 3
+      "admin_ids": [ // IDs of users that have access to the chat commands like /kick, /ban etc.
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
+      "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
+      "whitelisted_ids": [
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+    },
+    {
+      // Server 4
+      "admin_ids": [ // IDs of users that have access to the chat commands like /kick, /ban etc.
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
+      "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
+      "whitelisted_ids": [
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+    },
+    {
+      // Server 5
+      "admin_ids": [ // IDs of users that have access to the chat commands like /kick, /ban etc.
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
+      "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
+      "whitelisted_ids": [
+        11962, // Koen van Hove
+        786, // RS Keanos
+        29815 // Peer Risch
+      ],
+      "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+    }
+  ]
 }
