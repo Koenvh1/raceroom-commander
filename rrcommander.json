@@ -15,7 +15,7 @@
         29815 // Peer Risch
       ],
       "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
-      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penalty limit.
     },
     {
       // Server 2
@@ -32,7 +32,7 @@
         29815 // Peer Risch
       ],
       "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
-      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penalty limit.
     },
     {
       // Server 3
@@ -49,7 +49,7 @@
         29815 // Peer Risch
       ],
       "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
-      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penalty limit.
     },
     {
       // Server 4
@@ -66,7 +66,7 @@
         29815 // Peer Risch
       ],
       "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
-      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penalty limit.
     },
     {
       // Server 5
@@ -83,7 +83,7 @@
         29815 // Peer Risch
       ],
       "incident_intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets a drive-through penalty.
-      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penatly limit.
+      "incident_types": [0, 1, 2, 3, 4, 5, 6, 7, 8] // Which types of incident count towards that drive-through penalty limit.
     }
   ]
 }

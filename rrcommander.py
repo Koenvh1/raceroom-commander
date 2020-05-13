@@ -18,6 +18,8 @@ class Server:
     database_last_update = 0
 
     accepted_ids = set([])
+    # TODO Remove once RaceRoom fixes their banning system to work before a restart
+    banned_ids = set([])
     points = {}
 
     def __init__(self):
@@ -157,6 +159,7 @@ class Server:
                             if len(text_parts) < 2:
                                 continue
                             user_id = self.get_id_by_name(process_data, text_parts[1])
+                            self.banned_ids.add(user_id)
                             self.post_data("user/ban", {"ProcessId": int(process_id), "UserId": user_id})
 
                         elif command == "/penalty":
@@ -248,6 +251,11 @@ class Server:
 
                     # end chat messages
                     for player in process_data["ProcessState"]["Players"]:
+                        if player["UserId"] in self.banned_ids:
+                            # TODO Remove once RaceRoom fixes their banning system to work before a restart
+                            # Player was banned, so don't come back please
+                            self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": player["UserId"]})
+                            continue
                         if player["UserId"] in self.accepted_ids:
                             # Player was already accepted, so don't check again
                             continue
@@ -283,9 +291,8 @@ class Server:
                             self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
 
                         self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": player["UserId"]})
-                        # Kick player, and wait four seconds to prevent chat message spam
-                        time.sleep(4)
-                        self.get_data("dedi/" + str(process_id))
+                        # Kick player, and wait five seconds to prevent chat message spam
+                        time.sleep(5)
                         # TODO: Fix kick post request firing multiple times
 
                     # end reputation/rating check
