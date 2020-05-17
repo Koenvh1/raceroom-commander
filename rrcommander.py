@@ -123,6 +123,11 @@ class Server:
                 new_last_created_at = last_created_at
 
                 for server_no, process_id in enumerate(process_ids):
+                    if not len(config["servers"]) > server_no:
+                        print("No config found for server " + str(server_no + 1) +
+                              ", please fix this in the config file.")
+                        input()
+                        exit()
                     admin_ids = set(config["servers"][server_no]["admin_ids"])
                     minimum_rating = config["servers"][server_no]["minimum_rating"]
                     minimum_reputation = config["servers"][server_no]["minimum_reputation"]

@@ -51,7 +51,9 @@ So if you do not care about people going off track, then you can remove 3 from t
 Go to https://gitlab.com/Koenvh/raceroom-commander/-/releases, download the latest `rrcommander.zip`,
 extract the files to a folder of your choosing, set the settings in `rrcommander.json` to match whatever 
 you want to do with Raceroom Commander, start the Raceroom Dedicated Server and run `rrcommander.exe`. 
-The servers are in the same order as they are in the dedicated server control panel.
+The servers are in the same order as they are in the dedicated server control panel, 
+ergo server 1 is the top server, server 2 the one below that etc.
+You will need to have a config for each server.
 Please note that the Raceroom Dedicated Server must be running when starting `rrcommander.exe`, and settings
 will only be applied after restarting `rrcommander.exe`.
 
