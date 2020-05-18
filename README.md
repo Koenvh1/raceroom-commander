@@ -29,9 +29,11 @@ If you set a `minimum_rating` and/or `minimum_reputation`, then the server will 
 attempt to join the server with an insufficient rating/reputation. Set this to -1 to disable.
 The IDs in the `whitelist_ids` list will never be kicked due to insufficient rating/reputation.
 
-If you set the `incident_intervals`, then once a player reaches one of the specified amounts of incident points, 
-they will get a drive-through penalty. You can specify in `incident_types` which types of incidents should be 
-counted towards this point total. The possible types are:
+In `incidents`, you can set some incident rules. Once a player reaches one of the specified amounts of incident points, 
+they will get a penalty. The type of penalty is specified in `penalty` 
+(namely `slowdown`, `drivethrough`, or `stopandgo`) and `duration` (in case of stop-and-go or slowdown). 
+You can specify in `types` which types of incidents should be counted towards this point total. 
+The possible types are:
 
 | Type | Description                                        |
 |------|----------------------------------------------------|
@@ -45,7 +47,19 @@ counted towards this point total. The possible types are:
 | 7    | Not serving a penalty                              |
 | 8    | Disconnecting / Giving up before the end of a race |
 
-So if you do not care about people going off track, then you can remove 3 from the `incident_types`. 
+In intervals you can set at how many incident points this penalty should be applied. 
+For example, the following rule applies a four second slowdown penalty to players getting five, eight or fifteen 
+incident points from car-to-car collisions or cutting the track:
+```json
+{
+  "penalty": "slowdown", 
+  "duration": 4, 
+  "intervals": [5, 8, 15], 
+  "types": [0, 3] 
+}
+```
+You can have multiple rules, and they can overlap. For example, if a stop-and-go and drive-through rule both contain 10 
+as interval, then a player will become both a drive-through and stop-and-go penalty.
 
 ## How to download:
 Go to https://gitlab.com/Koenvh/raceroom-commander/-/releases, download the latest `rrcommander.zip`,
