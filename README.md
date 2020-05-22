@@ -11,10 +11,10 @@ whitelist, and drive-through penalty rules for incidents.
 - /kick NAME - Kicks a player from the server
 - /ban NAME - Bans a player from the server
 - /penalty NAME TYPE - Penalise a player, either slowdown, drivethrough, stopandgo, or disqualify
-- /slowdown NAME DURATION - Give a slowdown penalty to a player for DURATION seconds
-- /drivethrough NAME - Give a drive-through penalty to a player
-- /stopandgo NAME DURATION - Give a stop-and-go penalty to a player for DURATION seconds
-- /disqualify NAME - Black flag a player
+- /slowdown (or /sd) NAME DURATION - Give a slowdown penalty to a player for DURATION seconds
+- /drivethrough (or /dt) NAME - Give a drive-through penalty to a player
+- /stopandgo (or /sg) NAME DURATION - Give a stop-and-go penalty to a player for DURATION seconds
+- /disqualify (or /dq) NAME - Black flag a player
 - /next - Continue to the next session
 - /restart - Restart the current session
 - /help - Show the available commands
@@ -60,6 +60,10 @@ incident points from car-to-car collisions or cutting the track:
 ```
 You can have multiple rules, and they can overlap. For example, if a stop-and-go and drive-through rule both contain 10 
 as interval, then a player will become both a drive-through and stop-and-go penalty.
+
+Currently, banning players in the dedicated server does not prevent them from joining until you restart the server. If you use /ban, then they will be added to the ban list, and they will be unable to join as long as RRC is running.
+
+You do not need to use all functionality, and you can disable functionality you do not use.
 
 ## How to download:
 Go to https://gitlab.com/Koenvh/raceroom-commander/-/releases, download the latest `rrcommander.zip`,

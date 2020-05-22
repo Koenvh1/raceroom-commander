@@ -317,60 +317,71 @@ class Server:
                         # TODO: Fix kick post request firing multiple times
 
                     # end reputation/rating check
-
-                    for player in process_data["ProcessState"]["Players"]:
-                        for incident_no, incident in enumerate(incidents):
-                            penalty = incident["penalty"]
-                            incident_types = incident["types"]
-                            incident_intervals = incident["intervals"]
-                            points = sum([x["Points"] for x in player["Incidents"] if x["Type"] in incident_types])
-                            if player["UserId"] not in self.points:
-                                self.points[player["UserId"]] = []
-                            if not len(self.points[player["UserId"]]) > incident_no:
-                                # Points can differ depending on the type of penalty
-                                self.points[player["UserId"]].append(points)
-                            else:
-                                for i in range(self.points[player["UserId"]][incident_no] + 1, points + 1):
-                                    if i in incident_intervals:
-                                        if penalty == "drivethrough":
-                                            name = self.get_name_by_id(player["UserId"])
-                                            msg = "Awarded a drive-through penalty to " + \
-                                                  name + " for getting " + str(i) + " incident points."
-                                            self.post_data("chat/" + str(process_id) + "/admin",
-                                                           params={"Message": msg})
-                                            self.post_data("user/penalty", {
-                                                "ProcessId": int(process_id),
-                                                "UserId": player["UserId"],
-                                                "PenaltyType": "Drivethrough",
-                                                "Duration": 10
-                                            })
-                                        elif penalty == "slowdown":
-                                            name = self.get_name_by_id(player["UserId"])
-                                            duration = incident["duration"]
-                                            msg = "Awarded a " + str(duration) + " second slowdown penalty to " + \
-                                                  name + " for getting " + str(i) + " incident points."
-                                            self.post_data("chat/" + str(process_id) + "/admin",
-                                                           params={"Message": msg})
-                                            self.post_data("user/penalty", {
-                                                "ProcessId": int(process_id),
-                                                "UserId": player["UserId"],
-                                                "PenaltyType": "Slowdown",
-                                                "Duration": duration
-                                            })
-                                        elif penalty == "stopandgo":
-                                            name = self.get_name_by_id(player["UserId"])
-                                            duration = incident["duration"]
-                                            msg = "Awarded a " + str(duration) + " second stop-and-go penalty to " + \
-                                                  name + " for getting " + str(i) + " incident points."
-                                            self.post_data("chat/" + str(process_id) + "/admin",
-                                                           params={"Message": msg})
-                                            self.post_data("user/penalty", {
-                                                "ProcessId": int(process_id),
-                                                "UserId": player["UserId"],
-                                                "PenaltyType": "Stopandgo",
-                                                "Duration": duration
-                                            })
-                            self.points[player["UserId"]][incident_no] = points
+                    if process_data["ProcessState"]["CurrentSession"] >= 768:
+                        """
+                        0: Practice
+                        256: Qualify
+                        513: Warmup (Race)
+                        514: Warmup (Race 2)
+                        515: Warmup (Race 3)
+                        768: Race
+                        769: Race
+                        770: Race 2
+                        771: Race 3
+                        """
+                        for player in process_data["ProcessState"]["Players"]:
+                            for incident_no, incident in enumerate(incidents):
+                                penalty = incident["penalty"]
+                                incident_types = incident["types"]
+                                incident_intervals = incident["intervals"]
+                                points = sum([x["Points"] for x in player["Incidents"] if x["Type"] in incident_types])
+                                if player["UserId"] not in self.points:
+                                    self.points[player["UserId"]] = []
+                                if not len(self.points[player["UserId"]]) > incident_no:
+                                    # Points can differ depending on the type of penalty
+                                    self.points[player["UserId"]].append(points)
+                                else:
+                                    for i in range(self.points[player["UserId"]][incident_no] + 1, points + 1):
+                                        if i in incident_intervals:
+                                            if penalty == "drivethrough":
+                                                name = self.get_name_by_id(player["UserId"])
+                                                msg = "Awarded a drive-through penalty to " + \
+                                                      name + " for getting " + str(i) + " incident points."
+                                                self.post_data("chat/" + str(process_id) + "/admin",
+                                                               params={"Message": msg})
+                                                self.post_data("user/penalty", {
+                                                    "ProcessId": int(process_id),
+                                                    "UserId": player["UserId"],
+                                                    "PenaltyType": "Drivethrough",
+                                                    "Duration": 10
+                                                })
+                                            elif penalty == "slowdown":
+                                                name = self.get_name_by_id(player["UserId"])
+                                                duration = incident["duration"]
+                                                msg = "Awarded a " + str(duration) + " second slowdown penalty to " + \
+                                                      name + " for getting " + str(i) + " incident points."
+                                                self.post_data("chat/" + str(process_id) + "/admin",
+                                                               params={"Message": msg})
+                                                self.post_data("user/penalty", {
+                                                    "ProcessId": int(process_id),
+                                                    "UserId": player["UserId"],
+                                                    "PenaltyType": "Slowdown",
+                                                    "Duration": duration
+                                                })
+                                            elif penalty == "stopandgo":
+                                                name = self.get_name_by_id(player["UserId"])
+                                                duration = incident["duration"]
+                                                msg = "Awarded a " + str(duration) + " second stop-and-go penalty to " + \
+                                                      name + " for getting " + str(i) + " incident points."
+                                                self.post_data("chat/" + str(process_id) + "/admin",
+                                                               params={"Message": msg})
+                                                self.post_data("user/penalty", {
+                                                    "ProcessId": int(process_id),
+                                                    "UserId": player["UserId"],
+                                                    "PenaltyType": "Stopandgo",
+                                                    "Duration": duration
+                                                })
+                                self.points[player["UserId"]][incident_no] = points
                     # end points check
 
                 last_created_at = new_last_created_at
