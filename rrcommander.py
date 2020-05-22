@@ -110,9 +110,26 @@ class Server:
         print("See README for the available commands")
         print("--------")
         print("")
-        server_data = self.get_data("dedi")
 
-        config = commentjson.loads(open("rrcommander.json", "r").read())
+        server_data = None
+        while True:
+            try:
+                server_data = self.get_data("dedi")
+            except requests.exceptions.ConnectionError:
+                pass
+            if server_data is not None:
+                break
+            else:
+                print("Waiting for dedicated server to come online...")
+                time.sleep(1)
+
+        try:
+            config = commentjson.loads(open("rrcommander.json", "r").read())
+        except json.JSONDecodeError as e:
+            print("There is an error in the rrcommander.json file:")
+            print("Line %s position %s: %s" % (e.lineno, e.colno, e.msg))
+            input()
+            return
 
         process_ids = [x["GameSetting"]["Id"] for x in server_data]
 
@@ -125,9 +142,9 @@ class Server:
                 for server_no, process_id in enumerate(process_ids):
                     if not len(config["servers"]) > server_no:
                         print("No config found for server " + str(server_no + 1) +
-                              ", please fix this in the config file.")
+                              ", please fix this in the rrcommander.json file.")
                         input()
-                        exit()
+                        return
                     admin_ids = set(config["servers"][server_no]["admin_ids"])
                     minimum_rating = config["servers"][server_no]["minimum_rating"]
                     minimum_reputation = config["servers"][server_no]["minimum_reputation"]
