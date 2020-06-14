@@ -7,7 +7,7 @@ import json
 import sqlite3
 import time
 
-import commentjson
+import json5
 import requests
 import stringdist
 import text_unidecode
@@ -120,14 +120,14 @@ class Server:
             if server_data is not None:
                 break
             else:
-                print("Waiting for dedicated server to come online...")
+                print("Waiting for the dedicated server to come online...")
                 time.sleep(1)
 
         try:
-            config = commentjson.loads(open("rrcommander.json", "r").read())
+            config = json5.loads(open("rrcommander.json5", "r").read())
         except json.JSONDecodeError as e:
-            print("There is an error in the rrcommander.json file:")
-            print("Line %s position %s: %s" % (e.lineno, e.colno, e.msg))
+            print("There is an error in the rrcommander.json5 file:")
+            print("Line %s at position %s: %s" % (e.lineno, e.colno, e.msg))
             input()
             return
 
@@ -334,7 +334,7 @@ class Server:
                                 penalty = incident["penalty"]
                                 incident_types = incident["types"]
                                 incident_intervals = incident["intervals"]
-                                points = sum([x["Points"] for x in player["Incidents"] if x["Type"] in incident_types])
+                                points = sum([incident_types[str(x["Type"])] for x in player["Incidents"]])
                                 if player["UserId"] not in self.points:
                                     self.points[player["UserId"]] = []
                                 if not len(self.points[player["UserId"]]) > incident_no:

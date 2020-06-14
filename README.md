@@ -32,7 +32,7 @@ The IDs in the `whitelist_ids` list will never be kicked due to insufficient rat
 In `incidents`, you can set some incident rules. Once a player reaches one of the specified amounts of incident points, 
 they will get a penalty. The type of penalty is specified in `penalty` 
 (namely `slowdown`, `drivethrough`, or `stopandgo`) and `duration` (in case of stop-and-go or slowdown). 
-You can specify in `types` which types of incidents should be counted towards this point total. 
+You can specify in `types` which types of incidents should be counted towards this point total, and how much. 
 The possible types are:
 
 | Type | Description                                        |
