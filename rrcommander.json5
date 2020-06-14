@@ -74,82 +74,32 @@
     {
       // Server 2
       "admin_ids": [ // IDs of users that have access to the chat commands like /kick, /ban etc.
-        11962, // Koen van Hove
-        786, // RS Keanos
-        29815 // Peer Risch
+
       ],
       "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
-      "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
-      "reject_message": true, // Whether to broadcast a message whenever someone does not meet the above requirements.
+      "minimum_reputation": -1, // Minimum reputation required to join the server. Set to -1 to disable.
+      "reject_message_rating": "", // Message to broadcast when someone with insufficient rating joins.
+      "reject_message_reputation": "", // Message to broadcast when someone with insufficient reputation joins.
       "whitelisted_ids": [
-        11962, // Koen van Hove
-        786, // RS Keanos
-        29815 // Peer Risch
+
       ],
       "incidents": [
         {
-          "penalty": "drivethrough", // drivethrough, slowdown, stopandgo
-          "duration": 10, // In case of slowdown or stopandgo, the duration for the penalty.
-          "intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets this penalty.
-          "types": { // Amount of incident points gained for each incident type
-            "0": 4, // Car to car collision
-            "1": 2, // Collision with a track object
-            "2": 4, // Going the wrong way
-            "3": 1, // Going off track
-            "4": 1, // Staying stationary on the track
-            "5": 2, // Losing control of the vehicle
-            "6": 1, // Invalid Lap
-            "7": 2, // Not serving a penalty
-            "8": 1  // Disconnecting / Giving up before the end of a race
-          }
-        },
-        {
-          "penalty": "stopandgo", // drivethrough, slowdown, stopandgo
-          "duration": 10, // In case of slowdown or stopandgo, the duration for the penalty.
-          "intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets this penalty.
-          "types": { // Amount of incident points gained for each incident type
-            "0": 4, // Car to car collision
-            "1": 2, // Collision with a track object
-            "2": 4, // Going the wrong way
-            "3": 1, // Going off track
-            "4": 1, // Staying stationary on the track
-            "5": 2, // Losing control of the vehicle
-            "6": 1, // Invalid Lap
-            "7": 2, // Not serving a penalty
-            "8": 1  // Disconnecting / Giving up before the end of a race
-          }
-        },
-        {
           "penalty": "slowdown", // drivethrough, slowdown, stopandgo
-          "duration": 10, // In case of slowdown or stopandgo, the duration for the penalty.
-          "intervals": [5, 10, 15, 20, 25, 30, 70, 80], // Incident intervals at which someone gets this penalty.
+          "duration": 3, // In case of slowdown or stopandgo, the duration for the penalty.
+          "intervals": [10, 20, 30, 40, 50, 60, 70, 80], // Incident intervals at which someone gets this penalty.
           "types": { // Amount of incident points gained for each incident type
             "0": 4, // Car to car collision
             "1": 2, // Collision with a track object
-            "2": 4, // Going the wrong way
-            "3": 1, // Going off track
-            "4": 1, // Staying stationary on the track
-            "5": 2, // Losing control of the vehicle
-            "6": 1, // Invalid Lap
-            "7": 2, // Not serving a penalty
-            "8": 1  // Disconnecting / Giving up before the end of a race
-          }
-        },
-        {
-          "penalty": "stopandgo", // drivethrough, slowdown, stopandgo
-          "duration": 30, // In case of slowdown or stopandgo, the duration for the penalty.
-          "intervals": [4, 8, 12, 16, 20, 24], // Incident intervals at which someone gets this penalty.
-          "types": { // Amount of incident points gained for each incident type
-            "0": 4, // Car to car collision
-            "1": 2, // Collision with a track object
-            "2": 4, // Going the wrong way
-            "3": 1, // Going off track
-            "4": 1, // Staying stationary on the track
-            "5": 2, // Losing control of the vehicle
-            "6": 1, // Invalid Lap
-            "7": 2, // Not serving a penalty
-            "8": 1  // Disconnecting / Giving up before the end of a race
-          }
+            "2": 0, // Going the wrong way
+            "3": 0, // Going off track
+            "4": 0, // Staying stationary on the track
+            "5": 0, // Losing control of the vehicle
+            "6": 0, // Invalid Lap
+            "7": 0, // Not serving a penalty
+            "8": 0  // Disconnecting / Giving up before the end of a race
+          },
+          "message": "Stop crashing {0}!"
         }
       ]
     }
