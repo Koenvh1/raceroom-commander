@@ -10,6 +10,8 @@
       ],
       "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
       "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
+      "reject_message_rating": "Kicked {0} due to insufficient rating ({1}/{2})", // Message to broadcast when someone with insufficient rating joins.
+      "reject_message_reputation": "Kicked {0} due to insufficient reputation ({1}/{2})", // Message to broadcast when someone with insufficient reputation joins.
       "whitelisted_ids": [
         11962, // Koen van Hove
         786, // RS Keanos
@@ -30,7 +32,8 @@
             "6": 1, // Invalid Lap
             "7": 2, // Not serving a penalty
             "8": 1  // Disconnecting / Giving up before the end of a race
-          }
+          },
+          "message": "Awarded a drive-through penalty to {0} for getting {1} incident points"
         },
         {
           "penalty": "stopandgo", // drivethrough, slowdown, stopandgo
@@ -46,7 +49,8 @@
             "6": 1, // Invalid Lap
             "7": 2, // Not serving a penalty
             "8": 1  // Disconnecting / Giving up before the end of a race
-          }
+          },
+          "message": "Heeft een stop-and-go-straf toegekend voor het behalen van {1} incidentpunten aan {0}"
         },
         {
           "penalty": "slowdown", // drivethrough, slowdown, stopandgo
@@ -62,23 +66,8 @@
             "6": 1, // Invalid Lap
             "7": 2, // Not serving a penalty
             "8": 1  // Disconnecting / Giving up before the end of a race
-          }
-        },
-        {
-          "penalty": "stopandgo", // drivethrough, slowdown, stopandgo
-          "duration": 30, // In case of slowdown or stopandgo, the duration for the penalty.
-          "intervals": [4, 8, 12, 16, 20, 24], // Incident intervals at which someone gets this penalty.
-          "types": { // Amount of incident points gained for each incident type
-            "0": 4, // Car to car collision
-            "1": 2, // Collision with a track object
-            "2": 4, // Going the wrong way
-            "3": 1, // Going off track
-            "4": 1, // Staying stationary on the track
-            "5": 2, // Losing control of the vehicle
-            "6": 1, // Invalid Lap
-            "7": 2, // Not serving a penalty
-            "8": 1  // Disconnecting / Giving up before the end of a race
-          }
+          },
+          "message": "{0} erhielt eine Verlangsamungsstrafe für das Erhalten von {1} Vorfallpunkten"
         }
       ]
     },
@@ -91,6 +80,7 @@
       ],
       "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
       "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
+      "reject_message": true, // Whether to broadcast a message whenever someone does not meet the above requirements.
       "whitelisted_ids": [
         11962, // Koen van Hove
         786, // RS Keanos

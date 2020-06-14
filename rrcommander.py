@@ -124,7 +124,7 @@ class Server:
                 time.sleep(1)
 
         try:
-            config = json5.loads(open("rrcommander.json5", "r").read())
+            config = json5.loads(open("rrcommander.json5", "r", encoding="utf-8").read())
         except json.JSONDecodeError as e:
             print("There is an error in the rrcommander.json5 file:")
             print("Line %s at position %s: %s" % (e.lineno, e.colno, e.msg))
@@ -148,6 +148,8 @@ class Server:
                     admin_ids = set(config["servers"][server_no]["admin_ids"])
                     minimum_rating = config["servers"][server_no]["minimum_rating"]
                     minimum_reputation = config["servers"][server_no]["minimum_reputation"]
+                    reject_message_rating = config["servers"][server_no]["reject_message_rating"]
+                    reject_message_reputation = config["servers"][server_no]["reject_message_reputation"]
                     incidents = config["servers"][server_no]["incidents"]
                     whitelisted_ids = set(config["servers"][server_no]["whitelisted_ids"])
 
@@ -301,15 +303,15 @@ class Server:
                         if entry[1] < minimum_rating:
                             # Player kicked due to not meeting minimum rating requirement
                             # Only determines the chat message shown
-                            msg = "Kicked " + entry[3] + " due to insufficient rating (" + \
-                                  str(entry[1]) + "/" + str(minimum_rating) + ")."
-                            self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
+                            if reject_message_rating:
+                                msg = reject_message_rating.format(entry[3], str(entry[1]), str(minimum_rating))
+                                self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
                         elif entry[2] < minimum_reputation:
                             # Player kicked due to not meeting minimum reputation requirement
                             # Only determines the chat message shown
-                            msg = "Kicked " + entry[3] + " due to insufficient reputation (" + \
-                                  str(entry[2]) + "/" + str(minimum_reputation) + ")."
-                            self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
+                            if reject_message_reputation:
+                                msg = reject_message_reputation.format(entry[3], str(entry[2]), str(minimum_reputation))
+                                self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
 
                         self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": player["UserId"]})
                         # Kick player, and wait five seconds to prevent chat message spam
@@ -334,6 +336,7 @@ class Server:
                                 penalty = incident["penalty"]
                                 incident_types = incident["types"]
                                 incident_intervals = incident["intervals"]
+                                message = incident["message"]
                                 points = sum([incident_types[str(x["Type"])] for x in player["Incidents"]])
                                 if player["UserId"] not in self.points:
                                     self.points[player["UserId"]] = []
@@ -345,10 +348,10 @@ class Server:
                                         if i in incident_intervals:
                                             if penalty == "drivethrough":
                                                 name = self.get_name_by_id(player["UserId"])
-                                                msg = "Awarded a drive-through penalty to " + \
-                                                      name + " for getting " + str(i) + " incident points."
-                                                self.post_data("chat/" + str(process_id) + "/admin",
-                                                               params={"Message": msg})
+                                                msg = message.format(name, str(i))
+                                                if msg:
+                                                    self.post_data("chat/" + str(process_id) + "/admin",
+                                                                   params={"Message": msg})
                                                 self.post_data("user/penalty", {
                                                     "ProcessId": int(process_id),
                                                     "UserId": player["UserId"],
@@ -358,10 +361,10 @@ class Server:
                                             elif penalty == "slowdown":
                                                 name = self.get_name_by_id(player["UserId"])
                                                 duration = incident["duration"]
-                                                msg = "Awarded a " + str(duration) + " second slowdown penalty to " + \
-                                                      name + " for getting " + str(i) + " incident points."
-                                                self.post_data("chat/" + str(process_id) + "/admin",
-                                                               params={"Message": msg})
+                                                msg = message.format(name, str(i))
+                                                if msg:
+                                                    self.post_data("chat/" + str(process_id) + "/admin",
+                                                                   params={"Message": msg})
                                                 self.post_data("user/penalty", {
                                                     "ProcessId": int(process_id),
                                                     "UserId": player["UserId"],
@@ -371,10 +374,10 @@ class Server:
                                             elif penalty == "stopandgo":
                                                 name = self.get_name_by_id(player["UserId"])
                                                 duration = incident["duration"]
-                                                msg = "Awarded a " + str(duration) + " second stop-and-go penalty to " + \
-                                                      name + " for getting " + str(i) + " incident points."
-                                                self.post_data("chat/" + str(process_id) + "/admin",
-                                                               params={"Message": msg})
+                                                msg = message.format(name, str(i))
+                                                if msg:
+                                                    self.post_data("chat/" + str(process_id) + "/admin",
+                                                                   params={"Message": msg})
                                                 self.post_data("user/penalty", {
                                                     "ProcessId": int(process_id),
                                                     "UserId": player["UserId"],
