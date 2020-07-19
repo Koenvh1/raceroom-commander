@@ -138,11 +138,12 @@ class Server:
         while True:
             try:
                 new_last_created_at = last_created_at
+                initial_check_time = int(time.time())
 
                 for server_no, process_id in enumerate(process_ids):
                     if not len(config["servers"]) > server_no:
                         print("No config found for server " + str(server_no + 1) +
-                              ", please fix this in the rrcommander.json file.")
+                              ", please fix this in the rrcommander.json5 file.")
                         input()
                         return
                     admin_ids = set(config["servers"][server_no]["admin_ids"])
@@ -160,6 +161,12 @@ class Server:
                     for message in chat_messages["messages"]:
                         if message["CreatedAt"] <= last_created_at:
                             continue
+                        if message["CreatedAt"] > initial_check_time:
+                            # Fix potential race condition when a message on server N comes in when after server N is
+                            # checked, but before some server >N is checked, and there is a new message on a server >N
+                            # that is handled. This will cause some messages on server N to be discarded.
+                            continue
+
                         new_last_created_at = max(message["CreatedAt"], new_last_created_at)
 
                         if not message["UserId"] in admin_ids:
@@ -295,22 +302,29 @@ class Server:
                             # Create a dummy with rating/reputation 0
                             name = self.get_name_by_id(player["UserId"])
                             entry = (player["UserId"], 0, 0, name)
-                        if entry[1] >= minimum_rating and entry[2] >= minimum_reputation:
+
+                        (user_id, rating, reputation, fullname) = entry
+
+                        if rating >= minimum_rating and reputation >= minimum_reputation:
                             # Player meets the requirements to join
                             self.accepted_ids.add(player["UserId"])
                             continue
 
-                        if entry[1] < minimum_rating:
+                        if rating < minimum_rating:
                             # Player kicked due to not meeting minimum rating requirement
                             # Only determines the chat message shown
                             if reject_message_rating:
-                                msg = reject_message_rating.format(entry[3], str(entry[1]), str(minimum_rating))
+                                msg = reject_message_rating.format(fullname,
+                                                                   str(rating),
+                                                                   str(minimum_rating))
                                 self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
-                        elif entry[2] < minimum_reputation:
+                        elif reputation < minimum_reputation:
                             # Player kicked due to not meeting minimum reputation requirement
                             # Only determines the chat message shown
                             if reject_message_reputation:
-                                msg = reject_message_reputation.format(entry[3], str(entry[2]), str(minimum_reputation))
+                                msg = reject_message_reputation.format(fullname,
+                                                                       str(reputation),
+                                                                       str(minimum_reputation))
                                 self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
 
                         self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": player["UserId"]})
