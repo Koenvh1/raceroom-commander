@@ -78,5 +78,11 @@ You will need to have a config for each server.
 Please note that the Raceroom Dedicated Server must be running when starting `rrcommander.exe`, and setting changes
 will only be applied after restarting `rrcommander.exe`.
 
+## Building the exe yourself:
+The executable is created using py2exe, specifically using:
+```
+pyinstaller --icon logo.ico --onefile rrcommander.py
+```
+
 **Consider donating if you find Raceroom Commander useful:**  
 [![Donate](https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XN358TP8M3J26&source=url)

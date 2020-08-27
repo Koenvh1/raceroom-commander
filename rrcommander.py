@@ -40,6 +40,7 @@ class Server:
                 Username TEXT, 
                 Fullname TEXT, 
                 Rating REAL, 
+                ActivityPoints INTEGER, 
                 RacesCompleted INTEGER, 
                 Reputation REAL)""")
         c.execute("CREATE INDEX idx_UserId ON players(UserId)")
@@ -49,9 +50,10 @@ class Server:
                        x["Username"],
                        x["Fullname"],
                        x["Rating"],
+                       x["ActivityPoints"],
                        x["RacesCompleted"],
                        x["Reputation"]) for x in players]
-        c.executemany("INSERT INTO players VALUES (?, ?, ?, ?, ?, ?)", players_db)
+        c.executemany("INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?)", players_db)
         self.database.commit()
 
     def get_data(self, url):
@@ -149,8 +151,10 @@ class Server:
                     admin_ids = set(config["servers"][server_no]["admin_ids"])
                     minimum_rating = config["servers"][server_no]["minimum_rating"]
                     minimum_reputation = config["servers"][server_no]["minimum_reputation"]
+                    minimum_activity = config["servers"][server_no]["minimum_activity"]
                     reject_message_rating = config["servers"][server_no]["reject_message_rating"]
                     reject_message_reputation = config["servers"][server_no]["reject_message_reputation"]
+                    reject_message_activity = config["servers"][server_no]["reject_message_activity"]
                     incidents = config["servers"][server_no]["incidents"]
                     whitelisted_ids = set(config["servers"][server_no]["whitelisted_ids"])
 
@@ -294,18 +298,21 @@ class Server:
                             self.accepted_ids.add(player["UserId"])
                             continue
                         c = self.database.cursor()
-                        c.execute("SELECT UserId, Rating, Reputation, Fullname FROM players WHERE UserId = ?",
+                        c.execute("SELECT UserId, Rating, Reputation, ActivityPoints, Fullname FROM players " +
+                                  "WHERE UserId = ?",
                                   (player["UserId"],))
                         entry = c.fetchone()
                         if entry is None:
                             # Player has never driven ranked, and has no entry in the database
                             # Create a dummy with rating/reputation 0
                             name = self.get_name_by_id(player["UserId"])
-                            entry = (player["UserId"], 0, 0, name)
+                            entry = (player["UserId"], 0, 0, 0, name)
 
-                        (user_id, rating, reputation, fullname) = entry
+                        (user_id, rating, reputation, activity, fullname) = entry
 
-                        if rating >= minimum_rating and reputation >= minimum_reputation:
+                        if rating >= minimum_rating and \
+                                reputation >= minimum_reputation and \
+                                activity >= minimum_activity:
                             # Player meets the requirements to join
                             self.accepted_ids.add(player["UserId"])
                             continue
@@ -325,6 +332,14 @@ class Server:
                                 msg = reject_message_reputation.format(fullname,
                                                                        str(reputation),
                                                                        str(minimum_reputation))
+                                self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
+                        elif activity < minimum_activity:
+                            # Player kicked due to not meeting minimum activity requirement
+                            # Only determines the chat message shown
+                            if reject_message_activity:
+                                msg = reject_message_activity.format(fullname,
+                                                                     str(activity),
+                                                                     str(minimum_activity))
                                 self.post_data("chat/" + str(process_id) + "/admin", params={"Message": msg})
 
                         self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": player["UserId"]})
