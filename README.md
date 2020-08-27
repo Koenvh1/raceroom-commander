@@ -79,7 +79,7 @@ Please note that the Raceroom Dedicated Server must be running when starting `rr
 will only be applied after restarting `rrcommander.exe`.
 
 ## Building the exe yourself:
-The executable is created using py2exe, specifically using:
+The executable is created using pyinstaller, specifically using:
 ```
 pyinstaller --icon logo.ico --onefile rrcommander.py
 ```
