@@ -35,6 +35,7 @@
             "7": 2, // Not serving a penalty
             "8": 1  // Disconnecting / Giving up before the end of a race
           },
+          "exclude_sessions": [0, 256, 513, 514, 515, 770], // Sessions to exclude, for the full list see the README
           "message": "Awarded a drive-through penalty to {0} for getting {1} incident points"
         },
         {

@@ -50,6 +50,23 @@ The possible types are:
 | 8    | Disconnecting / Giving up before the end of a race |
 
 In intervals you can set at how many incident points this penalty should be applied. 
+
+You can also exclude certain sessions from certain rules. 
+For example, if you have one race that last 20 minutes, and another race that lasts 40 minutes,
+you might want to differentiate the rules. The sessions are as follows:
+
+| Code | Name            |
+|------|-----------------|
+| 0    | Practice        |
+| 256  | Qualify         |
+| 513  | Warmup (Race)   |
+| 514  | Warmup (Race 2) |
+| 515  | Warmup (Race 3) |
+| 768  | Race            |
+| 769  | Race 1          |
+| 770  | Race 2          |
+| 771  | Race 3          |
+
 For example, the following rule applies a four second slowdown penalty to players getting five, eight or fifteen 
 incident points. The types have been omitted for clarity:
 ```json
@@ -57,7 +74,8 @@ incident points. The types have been omitted for clarity:
   "penalty": "slowdown", 
   "duration": 4, 
   "intervals": [5, 8, 15], 
-  "types": { ... }
+  "types": { ... },
+  "exclude_sessions": [770]
 }
 ```
 You can have multiple rules, and they can overlap. For example, if a stop-and-go and drive-through rule both contain 10 

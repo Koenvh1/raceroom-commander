@@ -2,7 +2,7 @@
 Raceroom Commander
 Created by Koen van Hove - koenvh.nl
 """
-
+import datetime
 import json
 import sqlite3
 import time
@@ -27,7 +27,7 @@ class Server:
         self.update_database()
 
     def update_database(self):
-        players = requests.get("http://game.raceroom.com/multiplayer-rating/ratings.json").json()
+        players = requests.get("https://game.raceroom.com/multiplayer-rating/ratings.json").json()
         if not len(players) > 100:
             # Something went wrong with retrieving the data (less than 100 entries is unlikely), so abort.
             return
@@ -61,7 +61,7 @@ class Server:
         return data.json()
 
     def post_data(self, url, params):
-        print(url, params)
+        print(datetime.datetime.now(), url, params)
         data = requests.post("http://localhost:8088/" + url, json=params, headers={"X-Requested-With": "XmlHttpRequest"})
 
     def normalise_string(self, string):
@@ -348,78 +348,72 @@ class Server:
                         # TODO: Fix kick post request firing multiple times
 
                     # end reputation/rating check
-                    if process_data["ProcessState"]["CurrentSession"] >= 768:
-                        """
-                        0: Practice
-                        256: Qualify
-                        513: Warmup (Race)
-                        514: Warmup (Race 2)
-                        515: Warmup (Race 3)
-                        768: Race
-                        769: Race
-                        770: Race 2
-                        771: Race 3
-                        """
-                        for player in process_data["ProcessState"]["Players"]:
-                            for incident_no, incident in enumerate(incidents):
-                                penalty = incident["penalty"]
-                                incident_types = incident["types"]
-                                incident_intervals = incident["intervals"]
-                                message = incident["message"]
-                                points = sum([incident_types[str(x["Type"])] for x in player["Incidents"]])
-                                if player["UserId"] not in self.points:
-                                    self.points[player["UserId"]] = []
-                                if not len(self.points[player["UserId"]]) > incident_no:
-                                    # Points can differ depending on the type of penalty
-                                    self.points[player["UserId"]].append(points)
-                                else:
-                                    for i in range(self.points[player["UserId"]][incident_no] + 1, points + 1):
-                                        if i in incident_intervals:
-                                            if penalty == "drivethrough":
-                                                name = self.get_name_by_id(player["UserId"])
-                                                msg = message.format(name, str(i))
-                                                if msg:
-                                                    self.post_data("chat/" + str(process_id) + "/admin",
-                                                                   params={"Message": msg})
-                                                self.post_data("user/penalty", {
-                                                    "ProcessId": int(process_id),
-                                                    "UserId": player["UserId"],
-                                                    "PenaltyType": "Drivethrough",
-                                                    "Duration": 10
-                                                })
-                                            elif penalty == "slowdown":
-                                                name = self.get_name_by_id(player["UserId"])
-                                                duration = incident["duration"]
-                                                msg = message.format(name, str(i))
-                                                if msg:
-                                                    self.post_data("chat/" + str(process_id) + "/admin",
-                                                                   params={"Message": msg})
-                                                self.post_data("user/penalty", {
-                                                    "ProcessId": int(process_id),
-                                                    "UserId": player["UserId"],
-                                                    "PenaltyType": "Slowdown",
-                                                    "Duration": duration
-                                                })
-                                            elif penalty == "stopandgo":
-                                                name = self.get_name_by_id(player["UserId"])
-                                                duration = incident["duration"]
-                                                msg = message.format(name, str(i))
-                                                if msg:
-                                                    self.post_data("chat/" + str(process_id) + "/admin",
-                                                                   params={"Message": msg})
-                                                self.post_data("user/penalty", {
-                                                    "ProcessId": int(process_id),
-                                                    "UserId": player["UserId"],
-                                                    "PenaltyType": "Stopandgo",
-                                                    "Duration": duration
-                                                })
-                                self.points[player["UserId"]][incident_no] = points
+                    for player in process_data["ProcessState"]["Players"]:
+                        for incident_no, incident in enumerate(incidents):
+                            penalty = incident["penalty"]
+                            incident_types = incident["types"]
+                            incident_intervals = incident["intervals"]
+                            message = incident["message"]
+                            points = sum([incident_types[str(x["Type"])] for x in player["Incidents"]])
+
+                            if player["UserId"] not in self.points:
+                                self.points[player["UserId"]] = []
+                            if not len(self.points[player["UserId"]]) > incident_no:
+                                # Points can differ depending on the type of penalty
+                                self.points[player["UserId"]].append(points)
+                            else:
+                                for i in range(self.points[player["UserId"]][incident_no] + 1, points + 1):
+                                    if i in incident_intervals:
+                                        if "exclude_sessions" in incident and \
+                                                process_data["ProcessState"]["CurrentSession"] in \
+                                                incident["exclude_sessions"]:
+                                            continue
+
+                                        if penalty == "drivethrough":
+                                            name = self.get_name_by_id(player["UserId"])
+                                            msg = message.format(name, str(i))
+                                            if msg:
+                                                self.post_data("chat/" + str(process_id) + "/admin",
+                                                               params={"Message": msg})
+                                            self.post_data("user/penalty", {
+                                                "ProcessId": int(process_id),
+                                                "UserId": player["UserId"],
+                                                "PenaltyType": "Drivethrough",
+                                                "Duration": 10
+                                            })
+                                        elif penalty == "slowdown":
+                                            name = self.get_name_by_id(player["UserId"])
+                                            duration = incident["duration"]
+                                            msg = message.format(name, str(i))
+                                            if msg:
+                                                self.post_data("chat/" + str(process_id) + "/admin",
+                                                               params={"Message": msg})
+                                            self.post_data("user/penalty", {
+                                                "ProcessId": int(process_id),
+                                                "UserId": player["UserId"],
+                                                "PenaltyType": "Slowdown",
+                                                "Duration": duration
+                                            })
+                                        elif penalty == "stopandgo":
+                                            name = self.get_name_by_id(player["UserId"])
+                                            duration = incident["duration"]
+                                            msg = message.format(name, str(i))
+                                            if msg:
+                                                self.post_data("chat/" + str(process_id) + "/admin",
+                                                               params={"Message": msg})
+                                            self.post_data("user/penalty", {
+                                                "ProcessId": int(process_id),
+                                                "UserId": player["UserId"],
+                                                "PenaltyType": "Stopandgo",
+                                                "Duration": duration
+                                            })
+                            self.points[player["UserId"]][incident_no] = points
                     # end points check
 
                 last_created_at = new_last_created_at
 
                 if int(time.time()) - self.database_last_update > 15 * 60:
-                    print("Updating database...")
+                    print(datetime.datetime.now(), "Updating rating database...")
                     self.update_database()
             except Exception as e:
                 import traceback
