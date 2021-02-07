@@ -17,7 +17,6 @@ whitelist, and penalty rules for incidents.
 - /disqualify (or /dq) NAME - Black flag a player
 - /next - Continue to the next session
 - /restart - Restart the current session
-- /help - Show the available commands
 
 ## How it works:
 The easiest way to see how everything works is to look at the example configuration in the `rrcommander.json5` file.

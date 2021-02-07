@@ -1,12 +1,12 @@
 {
+  "username": "", // In case you have a username/password set up on your server, enter those details here.
+  "password": "", // Without them, RRCommander will not be able to connect to your server.
   "servers": [
     {
       // Server 1
       "admin_ids": [ // IDs of users that have access to the chat commands like /kick, /ban etc.
         -1, // Server chat
         11962, // Koen van Hove
-        786, // RS Keanos
-        29815 // Peer Risch
       ],
       "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
       "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
@@ -16,8 +16,6 @@
       "reject_message_activity": "Kicked {0} due to insufficient activity ({1}/{2})", // Message to broadcast when someone with insufficient activity joins.
       "whitelisted_ids": [
         11962, // Koen van Hove
-        786, // RS Keanos
-        29815 // Peer Risch
       ],
       "incidents": [
         {

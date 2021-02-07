@@ -14,6 +14,8 @@ import text_unidecode
 
 
 class Server:
+    config = None
+
     database = None
     database_last_update = 0
 
@@ -57,12 +59,19 @@ class Server:
         self.database.commit()
 
     def get_data(self, url):
-        data = requests.get("http://localhost:8088/" + url, headers={"X-Requested-With": "XmlHttpRequest"})
+        auth = None
+        if self.config["username"]:
+            auth = (self.config["username"], self.config["password"])
+        data = requests.get("http://localhost:8088/" + url, headers={"X-Requested-With": "XmlHttpRequest"}, auth=auth)
         return data.json()
 
     def post_data(self, url, params):
         print(datetime.datetime.now(), url, params)
-        data = requests.post("http://localhost:8088/" + url, json=params, headers={"X-Requested-With": "XmlHttpRequest"})
+        auth = None
+        if self.config["username"]:
+            auth = (self.config["username"], self.config["password"])
+        data = requests.post("http://localhost:8088/" + url, json=params,
+                             headers={"X-Requested-With": "XmlHttpRequest"}, auth=auth)
 
     def normalise_string(self, string):
         return text_unidecode.unidecode(string).lower()
@@ -113,6 +122,15 @@ class Server:
         print("--------")
         print("")
 
+        try:
+            config = json5.loads(open("rrcommander.json5", "r", encoding="utf-8").read())
+            self.config = config
+        except json.JSONDecodeError as e:
+            print("There is an error in the rrcommander.json5 file:")
+            print("Line %s at position %s: %s" % (e.lineno, e.colno, e.msg))
+            input()
+            return
+
         server_data = None
         while True:
             try:
@@ -124,14 +142,6 @@ class Server:
             else:
                 print("Waiting for the dedicated server to come online...")
                 time.sleep(1)
-
-        try:
-            config = json5.loads(open("rrcommander.json5", "r", encoding="utf-8").read())
-        except json.JSONDecodeError as e:
-            print("There is an error in the rrcommander.json5 file:")
-            print("Line %s at position %s: %s" % (e.lineno, e.colno, e.msg))
-            input()
-            return
 
         process_ids = [x["GameSetting"]["Id"] for x in server_data]
 
@@ -268,20 +278,6 @@ class Server:
 
                         elif command == "/next":
                             self.post_data("session/" + str(process_id), params={"Command": "ProceedNext"})
-
-                        elif command == "/help":
-                            help_text = [
-                                "/kick NAME",
-                                "/ban NAME",
-                                "/slowdown NAME DURATION",
-                                "/drivethrough NAME",
-                                "/stopandgo NAME DURATION",
-                                "/disqualify NAME",
-                                "/next",
-                                "/restart"
-                            ]
-                            self.post_data("chat/" + str(process_id) + "/admin",
-                                           params={"Message": "; ".join(help_text)})
 
                     # end chat messages
                     for player in process_data["ProcessState"]["Players"]:
