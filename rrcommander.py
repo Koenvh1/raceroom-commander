@@ -3,13 +3,13 @@ Raceroom Commander
 Created by Koen van Hove - koenvh.nl
 """
 import datetime
+import difflib
 import json
 import sqlite3
 import time
 
 import json5
 import requests
-import stringdist
 import text_unidecode
 
 
@@ -23,6 +23,9 @@ class Server:
     # TODO Remove once RaceRoom fixes their banning system to work before a restart
     banned_ids = set([])
     points = {}
+
+    unconfirmed_action = (lambda: pow(2, 2))
+    unconfirmed_action_time = 0
 
     def __init__(self):
         self.database = sqlite3.connect("rrcommander.db")
@@ -60,7 +63,7 @@ class Server:
 
     def get_data(self, url):
         auth = None
-        if self.config["username"]:
+        if "username" in self.config and self.config["username"]:
             auth = (self.config["username"], self.config["password"])
         data = requests.get("http://localhost:8088/" + url, headers={"X-Requested-With": "XmlHttpRequest"}, auth=auth)
         return data.json()
@@ -68,16 +71,24 @@ class Server:
     def post_data(self, url, params):
         print(datetime.datetime.now(), url, params)
         auth = None
-        if self.config["username"]:
+        if "username" in self.config and self.config["username"]:
             auth = (self.config["username"], self.config["password"])
         data = requests.post("http://localhost:8088/" + url, json=params,
                              headers={"X-Requested-With": "XmlHttpRequest"}, auth=auth)
+
+    def queue_action(self, process_id, function, action_type, name):
+        self.unconfirmed_action = function
+        self.unconfirmed_action_time = time.time()
+        self.post_data("chat/" + str(process_id) + "/admin", params={
+            "Message": "Are you sure you want to " + str(action_type) + " " + str(name) + "? (y/n)"
+        })
 
     def normalise_string(self, string):
         return text_unidecode.unidecode(string).lower()
 
     def get_id_by_name(self, process, name):
         players = [x["UserId"] for x in process["ProcessState"]["Players"]]
+        players.extend([5703767, 11962, 786, 29815, 5428966, 5803997, 13124, 29244, 1114642, 123095, 423485, 227742, 404988, 1230655, 8858, 5277120, 1249880, 662680, 5496654, 101392, 33357, 4986379, 808362, 1003, 5101639, 22822, 5462058, 5836562, 5513565, 5100501, 5833270, 4956508, 6042499, 6035539, 371674, 4871509, 5571146, 5555673, 6133190, 4755483, 368153, 5804855, 21375, 6095816, 5505687, 6149888])
         players_info = []
 
         c = self.database.cursor()
@@ -88,19 +99,16 @@ class Server:
             if entry:
                 players_info.append({"id": player, "name": entry[0]})
             else:
-                player_data = requests.get("http://game.raceroom.com/utils/user-info/" + str(player)).json()
+                player_data = requests.get("https://game.raceroom.com/utils/user-info/" + str(player)).json()
                 players_info.append({"id": player, "name": player_data["name"]})
 
-        user_distance = 99999999
-        user_id = 0
-        for player in players_info:
-            distance = stringdist.levenshtein_norm(self.normalise_string(name),
-                                                   self.normalise_string(player["name"]))
-            # print(player["name"] + ": " + str(distance))
-            if distance < user_distance:
-                user_distance = distance
-                user_id = player["id"]
-        return user_id
+        player_name_id = {self.normalise_string(p["name"]): p["id"] for p in players_info}
+
+        matches = difflib.get_close_matches(self.normalise_string(name),
+                                            [self.normalise_string(p["name"]) for p in players_info],
+                                            1,
+                                            0)
+        return player_name_id[matches[0]]
 
     def get_name_by_id(self, user_id):
         c = self.database.cursor()
@@ -110,7 +118,7 @@ class Server:
             return entry[0]
         else:
             try:
-                player_data = requests.get("http://game.raceroom.com/utils/user-info/" + str(user_id)).json()
+                player_data = requests.get("https://game.raceroom.com/utils/user-info/" + str(user_id)).json()
                 return player_data["name"]
             except requests.exceptions.ConnectionError:
                 return "player"
@@ -197,35 +205,16 @@ class Server:
                             if len(text_parts) < 2:
                                 continue
                             user_id = self.get_id_by_name(process_data, text_parts[1])
-                            self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": user_id})
+                            f = lambda: self.post_data("user/kick", {"ProcessId": int(process_id), "UserId": user_id})
+                            self.queue_action(process_id, f, "kick", self.get_name_by_id(user_id))
 
                         elif command == "/ban":
                             if len(text_parts) < 2:
                                 continue
                             user_id = self.get_id_by_name(process_data, text_parts[1])
                             self.banned_ids.add(user_id)
-                            self.post_data("user/ban", {"ProcessId": int(process_id), "UserId": user_id})
-
-                        elif command == "/penalty":
-                            if len(text_parts) < 2:
-                                continue
-                            if " " not in text_parts[1]:
-                                continue
-                            name, penalty = text_parts[1].rsplit(" ", 1)
-                            user_id = self.get_id_by_name(process_data, name)
-
-                            penalties = ["Slowdown", "Drivethrough", "StopAndGo", "Disqualify"]
-                            penalty_distance = 99999999
-                            penalty_name = ""
-                            for p in penalties:
-                                distance = stringdist.levenshtein_norm(self.normalise_string(p),
-                                                                       self.normalise_string(penalty))
-                                if distance < penalty_distance:
-                                    penalty_distance = distance
-                                    penalty_name = p
-
-                            self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
-                                                            "PenaltyType": penalty_name, "Duration": 3})
+                            f = lambda: self.post_data("user/ban", {"ProcessId": int(process_id), "UserId": user_id})
+                            self.queue_action(process_id, f, "ban", self.get_name_by_id(user_id))
 
                         elif command == "/slowdown" or command == "/sd":
                             if len(text_parts) < 2:
@@ -240,15 +229,17 @@ class Server:
                             else:
                                 name = text_parts[1]
                             user_id = self.get_id_by_name(process_data, name)
-                            self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
-                                                            "PenaltyType": "Slowdown", "Duration": int(duration)})
+                            f = lambda: self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
+                                                       "PenaltyType": "Slowdown", "Duration": int(duration)})
+                            self.queue_action(process_id, f, "give a slowdown penalty to", self.get_name_by_id(user_id))
 
                         elif command == "/drivethrough" or command == "/drive-through" or command == "/dt":
                             if len(text_parts) < 2:
                                 continue
                             user_id = self.get_id_by_name(process_data, text_parts[1])
-                            self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
-                                                            "PenaltyType": "Drivethrough", "Duration": 10})
+                            f = lambda: self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
+                                                       "PenaltyType": "Drivethrough", "Duration": 10})
+                            self.queue_action(process_id, f, "give a drivethrough penalty to", self.get_name_by_id(user_id))
 
                         elif command == "/stopandgo" or command == "/stop-and-go" or command == "/sg":
                             if len(text_parts) < 2:
@@ -263,21 +254,31 @@ class Server:
                             else:
                                 name = text_parts[1]
                             user_id = self.get_id_by_name(process_data, name)
-                            self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
-                                                            "PenaltyType": "StopAndGo", "Duration": duration})
+                            f = lambda: self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
+                                                       "PenaltyType": "StopAndGo", "Duration": duration})
+                            self.queue_action(process_id, f, "give a stop-and-go penalty to", self.get_name_by_id(user_id))
 
                         elif command == "/disqualify" or command == "/dq":
                             if len(text_parts) < 2:
                                 continue
                             user_id = self.get_id_by_name(process_data, text_parts[1])
-                            self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
-                                                            "PenaltyType": "Disqualify", "Duration": 10})
+                            f = lambda: self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
+                                                       "PenaltyType": "Disqualify", "Duration": 10})
+                            self.queue_action(process_id, f, "disqualify", self.get_name_by_id(user_id))
 
                         elif command == "/restart":
                             self.post_data("session/" + str(process_id), params={"Command": "Restart"})
 
                         elif command == "/next":
                             self.post_data("session/" + str(process_id), params={"Command": "ProceedNext"})
+
+                        elif command == "y":
+                            if time.time() - self.unconfirmed_action_time < 15:
+                                self.unconfirmed_action()
+                            self.unconfirmed_action = (lambda: pow(2, 2))
+
+                        elif command == "n":
+                            self.unconfirmed_action = (lambda: pow(2, 2))
 
                     # end chat messages
                     for player in process_data["ProcessState"]["Players"]:

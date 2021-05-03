@@ -10,13 +10,14 @@ whitelist, and penalty rules for incidents.
 ## Commands:
 - /kick NAME - Kicks a player from the server
 - /ban NAME - Bans a player from the server
-- /penalty NAME TYPE - Penalise a player, either slowdown, drivethrough, stopandgo, or disqualify
 - /slowdown (or /sd) NAME DURATION - Give a slowdown penalty to a player for DURATION seconds
 - /drivethrough (or /dt) NAME - Give a drive-through penalty to a player
 - /stopandgo (or /sg) NAME DURATION - Give a stop-and-go penalty to a player for DURATION seconds
 - /disqualify (or /dq) NAME - Black flag a player
 - /next - Continue to the next session
 - /restart - Restart the current session
+- y - Confirm the action
+- n - Reject the action
 
 ## How it works:
 The easiest way to see how everything works is to look at the example configuration in the `rrcommander.json5` file.
