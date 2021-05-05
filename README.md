@@ -104,3 +104,5 @@ pyinstaller --icon logo.ico --onefile rrcommander.py
 
 **Consider donating if you find Raceroom Commander useful:**  
 [![Donate](https://www.paypalobjects.com/en_US/GB/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XN358TP8M3J26&source=url)
+
+Logo imaged based on https://pixabay.com/vectors/car-flag-win-speed-race-final-40191/ 
