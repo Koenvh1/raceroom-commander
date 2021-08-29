@@ -86,7 +86,6 @@ class Server:
 
     def get_id_by_name(self, process, name):
         players = [x["UserId"] for x in process["ProcessState"]["Players"]]
-        players.extend([5703767, 11962, 786, 29815, 5428966, 5803997, 13124, 29244, 1114642, 123095, 423485, 227742, 404988, 1230655, 8858, 5277120, 1249880, 662680, 5496654, 101392, 33357, 4986379, 808362, 1003, 5101639, 22822, 5462058, 5836562, 5513565, 5100501, 5833270, 4956508, 6042499, 6035539, 371674, 4871509, 5571146, 5555673, 6133190, 4755483, 368153, 5804855, 21375, 6095816, 5505687, 6149888])
         players_info = []
 
         c = self.database.cursor()
@@ -236,7 +235,10 @@ class Server:
                             user_id = self.get_id_by_name(process_data, text_parts[1])
                             f = lambda: self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                        "PenaltyType": "Drivethrough", "Duration": 10})
-                            self.queue_action(process_id, f, "give a drivethrough penalty to", self.get_name_by_id(user_id))
+                            self.queue_action(process_id,
+                                              f,
+                                              "give a drivethrough penalty to",
+                                              self.get_name_by_id(user_id))
 
                         elif command == "/stopandgo" or command == "/stop-and-go" or command == "/sg":
                             if len(text_parts) < 2:
@@ -253,7 +255,10 @@ class Server:
                             user_id = self.get_id_by_name(process_data, name)
                             f = lambda: self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                        "PenaltyType": "StopAndGo", "Duration": duration})
-                            self.queue_action(process_id, f, "give a stop-and-go penalty to", self.get_name_by_id(user_id))
+                            self.queue_action(process_id,
+                                              f,
+                                              "give a stop-and-go penalty to",
+                                              self.get_name_by_id(user_id))
 
                         elif command == "/disqualify" or command == "/dq":
                             if len(text_parts) < 2:
@@ -261,7 +266,10 @@ class Server:
                             user_id = self.get_id_by_name(process_data, text_parts[1])
                             f = lambda: self.post_data("user/penalty", {"ProcessId": int(process_id), "UserId": user_id,
                                                        "PenaltyType": "Disqualify", "Duration": 10})
-                            self.queue_action(process_id, f, "disqualify", self.get_name_by_id(user_id))
+                            self.queue_action(process_id,
+                                              f,
+                                              "disqualify",
+                                              self.get_name_by_id(user_id))
 
                         elif command == "/restart":
                             self.post_data("session/" + str(process_id), params={"Command": "Restart"})
