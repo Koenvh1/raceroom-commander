@@ -167,6 +167,12 @@ class Server:
                     minimum_rating = config["servers"][server_no]["minimum_rating"]
                     minimum_reputation = config["servers"][server_no]["minimum_reputation"]
                     minimum_activity = config["servers"][server_no]["minimum_activity"]
+                    default_rating = config["servers"][server_no]["default_rating"] \
+                        if "default_rating" in config["servers"][server_no] else 0
+                    default_reputation = config["servers"][server_no]["default_reputation"] \
+                        if "default_reputation" in config["servers"][server_no] else 0
+                    default_activity = config["servers"][server_no]["default_activity"] \
+                        if "default_activity" in config["servers"][server_no] else 0
                     reject_message_rating = config["servers"][server_no]["reject_message_rating"]
                     reject_message_reputation = config["servers"][server_no]["reject_message_reputation"]
                     reject_message_activity = config["servers"][server_no]["reject_message_activity"]
@@ -301,9 +307,9 @@ class Server:
                         entry = c.fetchone()
                         if entry is None:
                             # Player has never driven ranked, and has no entry in the database
-                            # Create a dummy with rating/reputation 0
+                            # Create a dummy with default rating/reputation/activity
                             name = self.get_name_by_id(player["UserId"])
-                            entry = (player["UserId"], 0, 0, 0, name)
+                            entry = (player["UserId"], default_rating, default_reputation, default_activity, name)
 
                         (user_id, rating, reputation, activity, fullname) = entry
 
