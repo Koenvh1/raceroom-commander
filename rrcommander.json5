@@ -11,6 +11,9 @@
       "minimum_rating": -1, // Minimum rating required to join the server. Set to -1 to disable.
       "minimum_reputation": 80, // Minimum reputation required to join the server. Set to -1 to disable.
       "minimum_activity": -1, // Minimum activity score required to join the server. Set to -1 to disable.
+      "default_rating": 0, // Default rating given to players who have not driven ranked yet. New players start with 1500, default is 0.
+      "default_reputation": 0, // Default reputation given to players who have not driven ranked yet. New players start with 70, default is 0.
+      "default_activity": 0, // Default activity score given to players who have not driven ranked yet. New players start with 0, default is 0.
       "reject_message_rating": "Kicked {0} due to insufficient rating ({1}/{2})", // Message to broadcast when someone with insufficient rating joins.
       "reject_message_reputation": "Kicked {0} due to insufficient reputation ({1}/{2})", // Message to broadcast when someone with insufficient reputation joins.
       "reject_message_activity": "Kicked {0} due to insufficient activity ({1}/{2})", // Message to broadcast when someone with insufficient activity joins.
