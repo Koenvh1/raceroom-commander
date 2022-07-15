@@ -88,6 +88,9 @@ class Server:
         players = [x["UserId"] for x in process["ProcessState"]["Players"]]
         players_info = []
 
+        if len(players) == 0:
+            return 0
+
         c = self.database.cursor()
 
         for player in players:
@@ -284,7 +287,7 @@ class Server:
                             self.post_data("session/" + str(process_id), params={"Command": "ProceedNext"})
 
                         elif command == "y":
-                            if time.time() - self.unconfirmed_action_time < 15:
+                            if time.time() - self.unconfirmed_action_time < 30:
                                 self.unconfirmed_action()
                             self.unconfirmed_action = (lambda: pow(2, 2))
 
