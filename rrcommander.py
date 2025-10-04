@@ -30,34 +30,37 @@ class Server:
         self.update_database()
 
     def update_database(self):
-        players = requests.get("https://game.raceroom.com/multiplayer-rating/ratings.json").json()
-        if not len(players) > 100:
-            # Something went wrong with retrieving the data (less than 100 entries is unlikely), so abort.
-            return
+        try:
+            players = requests.get("https://game.raceroom.com/multiplayer-rating/ratings.json").json()
+            if not len(players) > 100:
+                # Something went wrong with retrieving the data (less than 100 entries is unlikely), so abort.
+                return
 
-        self.database_last_update = int(time.time())
-        c = self.database.cursor()
-        c.execute("DROP TABLE IF EXISTS players")
-        c.execute("""
-                CREATE TABLE players (UserId INTEGER, 
-                Username TEXT, 
-                Fullname TEXT, 
-                Rating REAL, 
-                ActivityPoints INTEGER, 
-                RacesCompleted INTEGER, 
-                Reputation REAL)""")
-        c.execute("CREATE INDEX idx_UserId ON players(UserId)")
-        c.execute("CREATE INDEX idx_Username ON players(Username)")
-        c.execute("CREATE INDEX idx_Fullname ON players(Fullname)")
-        players_db = [(x["UserId"],
-                       x["Username"],
-                       x["Fullname"],
-                       x["Rating"],
-                       x["ActivityPoints"],
-                       x["RacesCompleted"],
-                       x["Reputation"]) for x in players]
-        c.executemany("INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?)", players_db)
-        self.database.commit()
+            self.database_last_update = int(time.time())
+            c = self.database.cursor()
+            c.execute("DROP TABLE IF EXISTS players")
+            c.execute("""
+                    CREATE TABLE players (UserId INTEGER, 
+                    Username TEXT, 
+                    Fullname TEXT, 
+                    Rating REAL, 
+                    ActivityPoints INTEGER, 
+                    RacesCompleted INTEGER, 
+                    Reputation REAL)""")
+            c.execute("CREATE INDEX idx_UserId ON players(UserId)")
+            c.execute("CREATE INDEX idx_Username ON players(Username)")
+            c.execute("CREATE INDEX idx_Fullname ON players(Fullname)")
+            players_db = [(x["UserId"],
+                           x["Username"],
+                           x["Fullname"],
+                           x["Rating"],
+                           x["ActivityPoints"],
+                           x["RacesCompleted"],
+                           x["Reputation"]) for x in players]
+            c.executemany("INSERT INTO players VALUES (?, ?, ?, ?, ?, ?, ?)", players_db)
+            self.database.commit()
+        except Exception as e:
+            print(e)
 
     def get_data(self, url):
         auth = None
@@ -99,8 +102,12 @@ class Server:
             if entry:
                 players_info.append({"id": player, "name": entry[0]})
             else:
-                player_data = requests.get("https://game.raceroom.com/utils/user-info/" + str(player)).json()
-                players_info.append({"id": player, "name": player_data["name"]})
+                try:
+                    player_data = requests.get("https://game.raceroom.com/utils/user-info/" + str(player)).json()
+                    players_info.append({"id": player, "name": player_data["name"]})
+                except requests.exceptions.ConnectionError as e:
+                    print(e)
+                    pass
 
         player_name_id = {self.normalise_string(p["name"]): p["id"] for p in players_info}
 
@@ -120,7 +127,8 @@ class Server:
             try:
                 player_data = requests.get("https://game.raceroom.com/utils/user-info/" + str(user_id)).json()
                 return player_data["name"]
-            except requests.exceptions.ConnectionError:
+            except requests.exceptions.ConnectionError as e:
+                print(e)
                 return "player"
 
     def main(self):
